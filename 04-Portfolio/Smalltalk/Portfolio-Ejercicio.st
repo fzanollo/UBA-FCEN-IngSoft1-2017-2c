@@ -408,22 +408,21 @@ SummarizingAccount subclass: #Portfolio
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!Portfolio methodsFor: 'balance' stamp: 'fz 9/24/2017 16:35:33'!
+!Portfolio methodsFor: 'balance' stamp: 'fz 9/25/2017 15:07:27'!
 balance
-	^accounts inject: 0 into: [:balance :account | balance + account balance]! !
+	^accounts detectSum: [:account | account balance]! !
 
 
-!Portfolio methodsFor: 'testing' stamp: 'fz 9/24/2017 17:30:30'!
+!Portfolio methodsFor: 'testing' stamp: 'fz 9/25/2017 15:08:10'!
 manages: anAccount
 
-	^anAccount = self or:(
-	accounts inject: false into: [:managesAccount :account | managesAccount or: (account manages: anAccount)])
+	^anAccount = self or:(accounts anySatisfy: [:managedAccount | managedAccount manages: anAccount])
 ! !
 
-!Portfolio methodsFor: 'testing' stamp: 'fz 9/24/2017 16:43:48'!
+!Portfolio methodsFor: 'testing' stamp: 'fz 9/25/2017 15:09:54'!
 registers: aTransaction
 
-	^accounts inject: false into: [:hasTransaction :account | hasTransaction or: (account registers: aTransaction)]! !
+	^accounts anySatisfy: [:account | account registers: aTransaction]! !
 
 
 !Portfolio methodsFor: 'transactions' stamp: 'fz 9/24/2017 16:51:20'!
@@ -436,11 +435,12 @@ transactions
 	
 	^portfolioTransactions ! !
 
-!Portfolio methodsFor: 'transactions' stamp: 'fz 9/24/2017 18:10:55'!
+!Portfolio methodsFor: 'transactions' stamp: 'fz 9/25/2017 15:10:57'!
 transactionsOf: anAccount 
-	(self manages: anAccount) ifTrue: [^anAccount transactions].
-	
-	self error: self class accountNotManagedMessageDescription.! !
+	accounts
+        detect: [:managedAccount | managedAccount manages: anAccount ]
+        ifFound: [:matchingAccount | ^matchingAccount transactions ]
+        ifNone: [self error: self class accountNotManagedMessageDescription]! !
 
 
 !Portfolio methodsFor: 'initialization' stamp: 'fz 9/24/2017 18:16:48'!
