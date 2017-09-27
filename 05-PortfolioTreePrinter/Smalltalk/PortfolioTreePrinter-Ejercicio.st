@@ -482,9 +482,14 @@ value
 
 	self subclassResponsibility ! !
 
+!AccountTransaction methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:44:12'!
+valueForBalance
 
-!AccountTransaction methodsFor: 'printing' stamp: 'fz 9/27/2017 02:14:16'!
-asString
+	self subclassResponsibility ! !
+
+
+!AccountTransaction methodsFor: 'printing' stamp: 'fz 9/27/2017 16:36:26'!
+print
 	^self subclassResponsibility ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -520,17 +525,22 @@ for: anAmount during: days at: interestRate on: anAccount
 	! !
 
 
-!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 02:16:49'!
-asString
-	^'Plazo fijo por ', value asString, ' durante ', numberOfDays asString, ' dias a una tna de ', (tna * 100) asString, '%'.! !
-
 !CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 02:10:51'!
 earnings
 	^value * (tna /360) * numberOfDays ! !
 
+!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:36:37'!
+print
+	^'Plazo fijo por ', value asString, ' durante ', numberOfDays asString, ' dias a una tna de ', (tna * 100) asString, '%'.! !
+
 !CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 01:59:13'!
 value
 	^value! !
+
+
+!CertificateOfDeposit methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:48:51'!
+valueForBalance
+	^value negated! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -568,10 +578,14 @@ value
 	^ value! !
 
 
-!Deposit methodsFor: 'printing' stamp: 'fz 9/26/2017 22:24:02'!
-asString
-
+!Deposit methodsFor: 'printing' stamp: 'fz 9/27/2017 16:36:48'!
+print
 	^'Deposito por ', value asString .! !
+
+
+!Deposit methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:46:40'!
+valueForBalance
+	^value.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -597,14 +611,10 @@ register: aValue on: account
 
 !classDefinition: #IncomingTransfer category: #'PortfolioTreePrinter-Ejercicio'!
 AccountTransaction subclass: #IncomingTransfer
-	instanceVariableNames: 'value'
+	instanceVariableNames: 'value sourceAccount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
-
-!IncomingTransfer methodsFor: 'initialization' stamp: 'fz 9/26/2017 21:52:59'!
-initializeFor: aValue 
-	value := aValue! !
 
 
 !IncomingTransfer methodsFor: 'value' stamp: 'fz 9/26/2017 21:53:46'!
@@ -612,10 +622,19 @@ value
 	^value! !
 
 
-!IncomingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/26/2017 22:23:00'!
-asString
+!IncomingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:35:37'!
+for: aValue from: fromAccount
+	value := aValue.
+	sourceAccount := fromAccount.! !
 
+!IncomingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:36:58'!
+print
 	^'Transferencia por ',value.! !
+
+
+!IncomingTransfer methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:48:30'!
+valueForBalance
+	^value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -623,22 +642,23 @@ asString
 IncomingTransfer class
 	instanceVariableNames: ''!
 
-!IncomingTransfer class methodsFor: 'instance creation' stamp: 'fz 9/26/2017 21:52:37'!
-for: aValue 
 
-	^self new initializeFor: aValue ! !
+!IncomingTransfer class methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:35:00'!
+register: aValue on: toAccount from: fromAccount 
+	|incomingTransfer|
+	
+	incomingTransfer := self new for: aValue from: fromAccount.
+	toAccount register: incomingTransfer.
+	
+	^incomingTransfer ! !
 
 
 !classDefinition: #OutgoingTransfer category: #'PortfolioTreePrinter-Ejercicio'!
 AccountTransaction subclass: #OutgoingTransfer
-	instanceVariableNames: 'value'
+	instanceVariableNames: 'value targetAccount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
-
-!OutgoingTransfer methodsFor: 'initialization' stamp: 'fz 9/26/2017 21:51:49'!
-initializeFor: aValue 
-	value := aValue ! !
 
 
 !OutgoingTransfer methodsFor: 'value' stamp: 'fz 9/26/2017 21:53:32'!
@@ -646,10 +666,19 @@ value
 	^value! !
 
 
-!OutgoingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/26/2017 22:24:38'!
-asString
+!OutgoingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:33:44'!
+for: aValue to: toAccount
+	value := aValue.
+	targetAccount := toAccount.! !
 
+!OutgoingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:37:14'!
+print
 	^'Transferencia por -', value asString .! !
+
+
+!OutgoingTransfer methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:48:12'!
+valueForBalance
+	^value negated.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -657,11 +686,15 @@ asString
 OutgoingTransfer class
 	instanceVariableNames: ''!
 
-!OutgoingTransfer class methodsFor: 'instance creation' stamp: 'fz 9/26/2017 21:51:05'!
-for: aValue
+
+!OutgoingTransfer class methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:32:55'!
+register: aValue on: fromAccount to: toAccount
+	|outgoingTransfer|
 	
-	^self new initializeFor: aValue
-	! !
+	outgoingTransfer := self new for: aValue to: toAccount.
+	fromAccount register: outgoingTransfer.
+	
+	^outgoingTransfer ! !
 
 
 !classDefinition: #Withdraw category: #'PortfolioTreePrinter-Ejercicio'!
@@ -683,10 +716,14 @@ value
 	^ value ! !
 
 
-!Withdraw methodsFor: 'as yet unclassified' stamp: 'fz 9/26/2017 22:24:22'!
-asString
-
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:37:31'!
+print
 	^'Extraccion por ', value asString .! !
+
+
+!Withdraw methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:47:46'!
+valueForBalance
+	^value negated .! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -738,6 +775,10 @@ transactions
 
 	self subclassResponsibility ! !
 
+
+!SummarizingAccount methodsFor: 'printing' stamp: 'fz 9/27/2017 16:41:28'!
+reverseTreePrintWithAccountNames: aDictionary 
+	^self subclassResponsibility ! !
 
 !SummarizingAccount methodsFor: 'printing' stamp: 'fz 9/27/2017 01:24:08'!
 treePrintWithAccountNames: aDictionary 
@@ -887,20 +928,10 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'fz 9/27/2017 01:59:47'!
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'fz 9/27/2017 16:49:46'!
 balance
-	|balance|
-	balance := 0.
-	
-	transactions do: [ :transaction | 
-		(transaction isKindOf: Deposit) ifTrue: [balance := balance + transaction value]. 
-		(transaction isKindOf: Withdraw) ifTrue: [balance := balance - transaction value].
-		(transaction isKindOf: OutgoingTransfer) ifTrue: [balance := balance - transaction value].
-		(transaction isKindOf: IncomingTransfer) ifTrue: [balance := balance + transaction value].
-		(transaction isKindOf: CertificateOfDeposit) ifTrue: [balance := balance - transaction value].
-	 ].
 
-	^balance! !
+	^transactions inject: 0 into: [:balance :transaction | balance + transaction valueForBalance]! !
 
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
@@ -949,16 +980,6 @@ investmentNet
 
 	^investmentNet ! !
 
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 00:02:54'!
-summary
-	|summary|
-	
-	summary := String streamContents: [:strm |
-		transactions do: [:aTransaction | strm nextPutAll: aTransaction asString; newLine]
-		].
-	
-	^summary allButLast.! !
-
 !ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'fz 9/26/2017 23:16:37'!
 transferNet
 	|transferNet|
@@ -971,6 +992,20 @@ transferNet
 
 	^transferNet ! !
 
+
+!ReceptiveAccount methodsFor: 'printing' stamp: 'fz 9/27/2017 16:42:03'!
+reverseTreePrintWithAccountNames: aDictionary 
+	^aDictionary at:self.! !
+
+!ReceptiveAccount methodsFor: 'printing' stamp: 'fz 9/27/2017 16:37:57'!
+summary
+	|summary|
+	
+	summary := String streamContents: [:strm |
+		transactions do: [:aTransaction | strm nextPutAll: aTransaction print; newLine]
+		].
+	
+	^summary allButLast.! !
 
 !ReceptiveAccount methodsFor: 'printing' stamp: 'fz 9/27/2017 01:23:19'!
 treePrintWithAccountNames: aDictionary 
@@ -990,8 +1025,8 @@ Object subclass: #Transfer
 Transfer class
 	instanceVariableNames: ''!
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'fz 9/26/2017 21:48:32'!
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:29:35'!
 register: aValue from: fromAccount to: toAccount
 	
-	OutgoingTransfer register: aValue on: fromAccount.
-	IncomingTransfer register: aValue on: toAccount.! !
+	OutgoingTransfer register: aValue on: fromAccount to: toAccount.
+	IncomingTransfer register: aValue on: toAccount from: fromAccount.! !
