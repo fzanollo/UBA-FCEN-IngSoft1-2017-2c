@@ -455,19 +455,19 @@ accountTransferNetOf: aReceptiveAccount
 		
 	^ transferQuery netValue.! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'fz 9/28/2017 00:44:50'!
+!PortfolioTest methodsFor: 'test support' stamp: 'fz 9/28/2017 12:29:01'!
 investmentEarningsOf: aReceptiveAccount 
 	|investmentQuery|
 	
-	investmentQuery := InvestmentQuery for: aReceptiveAccount.
+	investmentQuery := InvestmentEarningsQuery for: aReceptiveAccount.
 		
 	^ investmentQuery earnings.! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'fz 9/28/2017 00:41:29'!
+!PortfolioTest methodsFor: 'test support' stamp: 'fz 9/28/2017 12:29:20'!
 investmentNetOf: aReceptiveAccount 
 	|investmentQuery|
 	
-	investmentQuery := InvestmentQuery for: aReceptiveAccount.
+	investmentQuery := InvestmentNetValueQuery for: aReceptiveAccount.
 		
 	^ investmentQuery netValue.! !
 
@@ -492,6 +492,10 @@ Object subclass: #AccountTransaction
 !AccountTransaction methodsFor: 'evaluating' stamp: 'fz 9/28/2017 00:29:14'!
 value
 	^value ! !
+
+!AccountTransaction methodsFor: 'evaluating' stamp: 'fz 9/28/2017 12:27:20'!
+valueFor: aQuery
+	self subclassResponsibility ! !
 
 !AccountTransaction methodsFor: 'evaluating' stamp: 'fz 9/28/2017 00:29:28'!
 valueForBalance
@@ -535,13 +539,21 @@ for: anAmount during: days at: interestRate on: anAccount
 	! !
 
 
-!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 02:10:51'!
-earnings
-	^value * (tna /360) * numberOfDays ! !
+!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:51:55'!
+numberOfDays
+	^numberOfDays! !
 
 !CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:36:37'!
 print
 	^'Plazo fijo por ', value asString, ' durante ', numberOfDays asString, ' dias a una tna de ', (tna * 100) asString, '%'.! !
+
+!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:51:45'!
+tna
+	^tna! !
+
+!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:48:14'!
+valueFor: aQuery 
+	^aQuery addForInvestment: self! !
 
 
 !CertificateOfDeposit methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:48:51'!
@@ -563,7 +575,6 @@ register: anAmount during: days at: interestRate on: anAccount
 		
 	^ certificateOfDeposit! !
 
-
 
 !classDefinition: #Deposit category: #'PortfolioTreePrinter-Ejercicio'!
 AccountTransaction subclass: #Deposit
@@ -578,7 +589,6 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-
 !Deposit methodsFor: 'printing' stamp: 'fz 9/27/2017 16:36:48'!
 print
 	^'Deposito por ', value asString .! !
@@ -587,6 +597,11 @@ print
 !Deposit methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:46:40'!
 valueForBalance
 	^value.! !
+
+
+!Deposit methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:48:28'!
+valueFor: aQuery 
+	^aQuery addForDeposit: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -617,8 +632,6 @@ AccountTransaction subclass: #IncomingTransfer
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-
-
 !IncomingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:35:37'!
 for: aValue from: fromAccount
 	value := aValue.
@@ -627,6 +640,10 @@ for: aValue from: fromAccount
 !IncomingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:36:58'!
 print
 	^'Transferencia por ',value.! !
+
+!IncomingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:48:33'!
+valueFor: aQuery 
+	^aQuery addForIncomingTransfer: self! !
 
 
 !IncomingTransfer methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:48:30'!
@@ -638,7 +655,6 @@ valueForBalance
 !classDefinition: 'IncomingTransfer class' category: #'PortfolioTreePrinter-Ejercicio'!
 IncomingTransfer class
 	instanceVariableNames: ''!
-
 
 !IncomingTransfer class methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:35:00'!
 register: aValue on: toAccount from: fromAccount 
@@ -657,8 +673,6 @@ AccountTransaction subclass: #OutgoingTransfer
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-
-
 !OutgoingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:33:44'!
 for: aValue to: toAccount
 	value := aValue.
@@ -668,9 +682,14 @@ for: aValue to: toAccount
 print
 	^'Transferencia por -', value asString .! !
 
+!OutgoingTransfer methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:48:38'!
+valueFor: aQuery 
+	^aQuery addForOutgoingTransfer: self! !
 
-!OutgoingTransfer methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:48:12'!
+
+!OutgoingTransfer methodsFor: 'evaluating' stamp: 'fz 9/28/2017 12:56:07'!
 valueForBalance
+"esto debería ser parecido a valueFor (o usar eso mismo)"
 	^value negated.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -678,7 +697,6 @@ valueForBalance
 !classDefinition: 'OutgoingTransfer class' category: #'PortfolioTreePrinter-Ejercicio'!
 OutgoingTransfer class
 	instanceVariableNames: ''!
-
 
 !OutgoingTransfer class methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:32:55'!
 register: aValue on: fromAccount to: toAccount
@@ -703,10 +721,13 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-
 !Withdraw methodsFor: 'as yet unclassified' stamp: 'fz 9/27/2017 16:37:31'!
 print
 	^'Extraccion por ', value asString .! !
+
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:48:43'!
+valueFor: aQuery 
+	^aQuery addForWithdraw: self! !
 
 
 !Withdraw methodsFor: 'evaluating' stamp: 'fz 9/27/2017 16:47:46'!
@@ -977,47 +998,108 @@ for: aReceptiveAccount
 	self subclassResponsibility ! !
 
 
-!classDefinition: #InvestmentQuery category: #'PortfolioTreePrinter-Ejercicio'!
-TransactionQuery subclass: #InvestmentQuery
+!classDefinition: #InvestmentEarningsQuery category: #'PortfolioTreePrinter-Ejercicio'!
+TransactionQuery subclass: #InvestmentEarningsQuery
 	instanceVariableNames: 'account'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-!InvestmentQuery methodsFor: 'initialization' stamp: 'fz 9/28/2017 00:43:23'!
+!InvestmentEarningsQuery methodsFor: 'initialization' stamp: 'fz 9/28/2017 12:28:16'!
 for: aReceptiveAccount 
 	account := aReceptiveAccount ! !
 
 
-!InvestmentQuery methodsFor: 'testing' stamp: 'fz 9/28/2017 00:45:37'!
+!InvestmentEarningsQuery methodsFor: 'testing' stamp: 'fz 9/28/2017 12:52:29'!
 earnings
 	|earnings|
 	
 	earnings :=0.
-	account transactions do: [:transaction | 
-		(transaction isKindOf: CertificateOfDeposit) ifTrue: [earnings := earnings + transaction earnings].
-	  ].
+	account transactions do: [:transaction | earnings:= earnings + (transaction valueFor: self)].
 
 	^earnings ! !
 
-!InvestmentQuery methodsFor: 'testing' stamp: 'fz 9/28/2017 00:44:23'!
+
+!InvestmentEarningsQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:57:28'!
+addForDeposit: aDeposit 
+	^0! !
+
+!InvestmentEarningsQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:57:38'!
+addForIncomingTransfer: anIncomingTransfer 
+	^0! !
+
+!InvestmentEarningsQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:49:12'!
+addForInvestment: anInvestment 
+	^ anInvestment value * (anInvestment tna /360) * anInvestment numberOfDays! !
+
+!InvestmentEarningsQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:57:52'!
+addForOutgoingTransfer: anOutgoingTransfer 
+	^0! !
+
+!InvestmentEarningsQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:57:58'!
+addForWithdraw: aWithdraw 
+	^0! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'InvestmentEarningsQuery class' category: #'PortfolioTreePrinter-Ejercicio'!
+InvestmentEarningsQuery class
+	instanceVariableNames: ''!
+
+!InvestmentEarningsQuery class methodsFor: 'instance creation' stamp: 'fz 9/28/2017 12:28:16'!
+for: aReceptiveAccount 
+	^self new for: aReceptiveAccount ! !
+
+
+!classDefinition: #InvestmentNetValueQuery category: #'PortfolioTreePrinter-Ejercicio'!
+TransactionQuery subclass: #InvestmentNetValueQuery
+	instanceVariableNames: 'account'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!InvestmentNetValueQuery methodsFor: 'initialization' stamp: 'fz 9/28/2017 12:28:23'!
+for: aReceptiveAccount 
+	account := aReceptiveAccount ! !
+
+
+!InvestmentNetValueQuery methodsFor: 'testing' stamp: 'fz 9/28/2017 12:45:35'!
 netValue
 	|net|
 	
 	net :=0.
-	account transactions do: [:transaction | 
-		(transaction isKindOf: CertificateOfDeposit) ifTrue: [net := net + transaction value].
-	  ].
+	account transactions do: [:transaction | net:= net + (transaction valueFor: self)].
 
 	^net ! !
 
+
+!InvestmentNetValueQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:49:48'!
+addForDeposit: aDeposit 
+	^0! !
+
+!InvestmentNetValueQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:57:10'!
+addForIncomingTransfer: anIncomingTransfer 
+	^0! !
+
+!InvestmentNetValueQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:50:01'!
+addForInvestment: anInvestment 
+	^anInvestment value! !
+
+!InvestmentNetValueQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:50:10'!
+addForOutgoingTransfer: anOutgoingTransfer 
+	^0! !
+
+!InvestmentNetValueQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:50:16'!
+addForWithdraw: aWithdraw 
+	^0! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'InvestmentQuery class' category: #'PortfolioTreePrinter-Ejercicio'!
-InvestmentQuery class
+!classDefinition: 'InvestmentNetValueQuery class' category: #'PortfolioTreePrinter-Ejercicio'!
+InvestmentNetValueQuery class
 	instanceVariableNames: ''!
 
-!InvestmentQuery class methodsFor: 'instance creation' stamp: 'fz 9/28/2017 00:41:56'!
+!InvestmentNetValueQuery class methodsFor: 'instance creation' stamp: 'fz 9/28/2017 12:28:23'!
 for: aReceptiveAccount 
 	^self new for: aReceptiveAccount ! !
 
@@ -1067,19 +1149,37 @@ for: aReceptiveAccount
 	account := aReceptiveAccount.! !
 
 
-!TransferQuery methodsFor: 'testing' stamp: 'fz 9/28/2017 00:40:04'!
+!TransferQuery methodsFor: 'testing' stamp: 'fz 9/28/2017 12:39:58'!
 netValue
 	|net|
 	
 	net :=0.
-	account transactions do: [:transaction | 
-		(transaction isKindOf: OutgoingTransfer) ifTrue: [net := net - transaction value].
-		(transaction isKindOf: IncomingTransfer) ifTrue: [net := net + transaction value]
-	  ].
+	account transactions do: [:transaction | net:= net + (transaction valueFor: self)].
 
 	^net 
 
 	! !
+
+
+!TransferQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:50:42'!
+addForDeposit: aDeposit 
+	^0! !
+
+!TransferQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:50:58'!
+addForIncomingTransfer: anIncomingTransfer 
+	^anIncomingTransfer value! !
+
+!TransferQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:52:50'!
+addForInvestment: aCertificateOfDeposit 
+	^0! !
+
+!TransferQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:51:15'!
+addForOutgoingTransfer: anOutgoingTransfer 
+	^anOutgoingTransfer value negated! !
+
+!TransferQuery methodsFor: 'as yet unclassified' stamp: 'fz 9/28/2017 12:51:24'!
+addForWithdraw: aWithdraw 
+	^0! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
