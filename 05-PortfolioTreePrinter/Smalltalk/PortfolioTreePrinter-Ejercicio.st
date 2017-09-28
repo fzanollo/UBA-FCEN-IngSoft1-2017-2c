@@ -1034,16 +1034,6 @@ for: aReceptiveAccount
 	account := aReceptiveAccount ! !
 
 
-!Summary methodsFor: 'testing' stamp: 'fz 9/28/2017 00:52:33'!
-lines
-	|summary|
-	
-	summary := String streamContents: [:strm |
-		account transactions do: [:aTransaction | strm nextPutAll: aTransaction print; newLine]
-		].
-	
-	^summary allButLast.! !
-
 !Summary methodsFor: 'testing' stamp: 'fz 9/28/2017 00:55:21'!
 print
 	|summaryText|
