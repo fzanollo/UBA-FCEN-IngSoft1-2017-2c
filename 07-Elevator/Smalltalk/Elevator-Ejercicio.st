@@ -433,95 +433,251 @@ test05ElevatorGetsIdleWhenDoorGetOpened
 	self assert: elevatorController cabinFloorNumber = 1! !
 
 
-!classDefinition: #ElevatorController category: #'Elevator-Ejercicio'!
-Object subclass: #ElevatorController
-	instanceVariableNames: 'state cabinState cabinDoorState cabinFloorNumber floorsToGo'
+!classDefinition: #Cabin category: #'Elevator-Ejercicio'!
+Object subclass: #Cabin
+	instanceVariableNames: 'state'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Elevator-Ejercicio'!
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:22:29'!
-cabinDoorClosed
-	cabinDoorState := 'closed'.
-	cabinState := 'moving'.! !
+!Cabin methodsFor: 'testing' stamp: 'fz 10/10/2017 23:18:59'!
+isMoving
+	^state = self class movingState! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 18:41:48'!
+!Cabin methodsFor: 'testing' stamp: 'fz 10/10/2017 23:19:40'!
+isStopped
+	^state = self class stoppedState! !
+
+!Cabin methodsFor: 'testing' stamp: 'fz 10/10/2017 23:20:34'!
+isWaitingForPeople
+	^state = self class waitingForPeopleState! !
+
+
+!Cabin methodsFor: 'initialize' stamp: 'fz 10/10/2017 23:32:44'!
+initialize
+	state := self class stoppedState.! !
+
+
+!Cabin methodsFor: 'actions' stamp: 'fz 10/10/2017 23:28:15'!
+move
+	state := self class movingState.! !
+
+!Cabin methodsFor: 'actions' stamp: 'fz 10/10/2017 23:31:22'!
+stop
+	state := self class stoppedState.! !
+
+!Cabin methodsFor: 'actions' stamp: 'fz 10/10/2017 23:34:56'!
+waitForPeople
+	state := self class waitingForPeopleState.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Cabin class' category: #'Elevator-Ejercicio'!
+Cabin class
+	instanceVariableNames: ''!
+
+!Cabin class methodsFor: 'states' stamp: 'fz 10/10/2017 23:18:28'!
+movingState
+	^#Moving! !
+
+!Cabin class methodsFor: 'states' stamp: 'fz 10/10/2017 23:19:57'!
+stoppedState
+	^#Stopped.! !
+
+!Cabin class methodsFor: 'states' stamp: 'fz 10/10/2017 23:20:50'!
+waitingForPeopleState
+	^#WaitingForPeople.! !
+
+
+!classDefinition: #CabinDoor category: #'Elevator-Ejercicio'!
+Object subclass: #CabinDoor
+	instanceVariableNames: 'state'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Elevator-Ejercicio'!
+
+!CabinDoor methodsFor: 'testing' stamp: 'fz 10/10/2017 23:40:55'!
+isClosed
+	^state = self class closedState.! !
+
+!CabinDoor methodsFor: 'testing' stamp: 'fz 10/10/2017 23:41:07'!
+isClosing
+	^state = self class closingState.! !
+
+!CabinDoor methodsFor: 'testing' stamp: 'fz 10/10/2017 23:41:21'!
+isOpened
+	^state = self class openedState.! !
+
+!CabinDoor methodsFor: 'testing' stamp: 'fz 10/10/2017 23:41:32'!
+isOpening
+	^state = self class openingState.! !
+
+
+!CabinDoor methodsFor: 'initialize' stamp: 'fz 10/10/2017 23:46:01'!
+initialize
+	state := self class openedState.! !
+
+
+!CabinDoor methodsFor: 'actions' stamp: 'fz 10/10/2017 23:47:19'!
+close
+	state := self class closingState ! !
+
+!CabinDoor methodsFor: 'actions' stamp: 'fz 10/10/2017 23:47:59'!
+open
+	state := self class openingState ! !
+
+
+!CabinDoor methodsFor: 'signals' stamp: 'fz 10/10/2017 23:49:26'!
+closed
+	state := self class closedState ! !
+
+!CabinDoor methodsFor: 'signals' stamp: 'fz 10/10/2017 23:49:45'!
+opened
+	state := self class openedState ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'CabinDoor class' category: #'Elevator-Ejercicio'!
+CabinDoor class
+	instanceVariableNames: ''!
+
+!CabinDoor class methodsFor: 'states' stamp: 'fz 10/10/2017 23:42:34'!
+closedState
+	^#Closed! !
+
+!CabinDoor class methodsFor: 'states' stamp: 'fz 10/10/2017 23:42:45'!
+closingState
+	^#Closing! !
+
+!CabinDoor class methodsFor: 'states' stamp: 'fz 10/10/2017 23:42:55'!
+openedState
+	^#Opened! !
+
+!CabinDoor class methodsFor: 'states' stamp: 'fz 10/10/2017 23:43:05'!
+openingState
+	^#Opening! !
+
+
+!classDefinition: #ElevatorController category: #'Elevator-Ejercicio'!
+Object subclass: #ElevatorController
+	instanceVariableNames: 'state cabinFloorNumber floorsToGo cabin cabinDoor'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Elevator-Ejercicio'!
+
+!ElevatorController methodsFor: 'testing' stamp: 'fz 10/10/2017 23:45:14'!
 cabinFloorNumber
-	
 	^cabinFloorNumber! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:18:09'!
+!ElevatorController methodsFor: 'testing' stamp: 'fz 10/10/2017 23:43:56'!
 isCabinDoorClosed
-	^cabinDoorState = 'closed'.! !
+	^cabinDoor isClosed.! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:17:05'!
+!ElevatorController methodsFor: 'testing' stamp: 'fz 10/10/2017 23:44:11'!
 isCabinDoorClosing
-	^cabinDoorState = 'closing'.! !
+	^cabinDoor isClosing.! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:09:32'!
+!ElevatorController methodsFor: 'testing' stamp: 'fz 10/10/2017 23:44:26'!
 isCabinDoorOpened
-	^(cabinDoorState = 'opened')! !
+	^cabinDoor isOpened.! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:27:46'!
+!ElevatorController methodsFor: 'testing' stamp: 'fz 10/10/2017 23:44:34'!
 isCabinDoorOpening
-	^cabinDoorState = 'opening'.! !
+	^cabinDoor isOpening.! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:23:27'!
+!ElevatorController methodsFor: 'testing' stamp: 'fz 10/10/2017 23:18:51'!
 isCabinMoving
-	^cabinState = 'moving'! !
+	^cabin isMoving! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:08:49'!
+!ElevatorController methodsFor: 'testing' stamp: 'fz 10/10/2017 23:20:09'!
 isCabinStopped
-	^(cabinState = 'stopped')! !
+	^cabin isStopped ! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:52:06'!
+!ElevatorController methodsFor: 'testing' stamp: 'fz 10/10/2017 23:21:43'!
 isCabinWaitingForPeople
-	^state = 'waitingForPeople'! !
+	^cabin isWaitingForPeople ! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:07:43'!
+!ElevatorController methodsFor: 'testing' stamp: 'LT 10/2/2017 19:07:43'!
 isIdle
 	^(state = 'idle')! !
 
-!ElevatorController methodsFor: 'as yet unclassified' stamp: 'LT 10/2/2017 19:49:25'!
+!ElevatorController methodsFor: 'testing' stamp: 'LT 10/2/2017 19:49:25'!
 isWorking
 	^((state = 'working')or: (floorsToGo notEmpty)).! !
 
 
-!ElevatorController methodsFor: 'initialize' stamp: 'LT 10/2/2017 19:44:04'!
+!ElevatorController methodsFor: 'initialize' stamp: 'fz 10/10/2017 23:45:30'!
 initialize
 	state := 'idle'.
-	cabinState := 'stopped'.
-	cabinDoorState := 'opened'.
+	cabin := Cabin new.
+	cabinDoor := CabinDoor new.
 	cabinFloorNumber := 0.
 	floorsToGo := OrderedCollection new.! !
 
 
-!ElevatorController methodsFor: 'state changer' stamp: 'LT 10/2/2017 19:56:04'!
-cabinDoorOpened
-	(floorsToGo isEmpty) ifTrue: [state := 'idle'].
-	cabinState := 'waitingForPeople'.
-	(floorsToGo isEmpty) ifTrue: [cabinState := 'stopped'].
-	cabinDoorState := 'opened'.! !
+!ElevatorController methodsFor: 'actions' stamp: 'fz 10/11/2017 00:30:15'!
+closeCabinDoor
+"si esta idle entonces no cierra la puerta"
+	(self isWorking) ifTrue: [
+		"si la cabina está esperando gente, con la puerta abierta, cerrar la puerta y 'frenar' la cabina"
+		(self isCabinWaitingForPeople and: self isCabinDoorOpened) ifTrue:[cabin stop. cabinDoor close].
+		
+		"si la cabina se mueve, no hacer nada"
+		
+		"si se está abriendo la puerta para esperar gente, no hacer nada"
+		
+	]! !
 
-!ElevatorController methodsFor: 'state changer' stamp: 'LT 10/2/2017 19:46:11'!
+!ElevatorController methodsFor: 'actions' stamp: 'fz 10/10/2017 23:46:31'!
+goUpPushedFromFloor: aFloor
+"empieza a trabajar, cierra la puerta"
+
+	state  := 'working'.
+	cabinDoor close.
+	
+	floorsToGo add: aFloor.! !
+
+!ElevatorController methodsFor: 'actions' stamp: 'fz 10/10/2017 23:47:49'!
+openCabinDoor
+	(self isCabinMoving) ifFalse:[
+		(self isCabinDoorClosed or: self isCabinDoorClosing) ifTrue: [cabinDoor open].
+	].! !
+
+
+!ElevatorController methodsFor: 'signals' stamp: 'fz 10/11/2017 00:42:32'!
+cabinDoorClosed
+"Signal de puerta cerrada, se puede empezar a mover la cabina"
+	(self isIdle) ifTrue:[ElevatorEmergency signal: 'Sensor de puerta desincronizado'].
+	(self isCabinDoorClosed or: self isCabinDoorOpening) ifTrue:[ElevatorEmergency signal: 'Sensor de puerta desincronizado'].
+	
+	cabinDoor closed. "< en realidad debería ser la misma puerta quien tire el signal"
+	cabin move.! !
+
+!ElevatorController methodsFor: 'signals' stamp: 'fz 10/10/2017 23:50:14'!
+cabinDoorOpened
+	(floorsToGo isEmpty) ifTrue: [
+		state := 'idle'. 
+		cabin stop.
+	] ifFalse:[	
+		cabin waitForPeople.
+	].
+	
+	cabinDoor opened. "< en realidad debería ser la misma puerta quien tire el signal"! !
+
+!ElevatorController methodsFor: 'signals' stamp: 'fz 10/11/2017 00:37:12'!
 cabinOnFloor: aFloor
+	(self isCabinStopped) ifTrue:[ElevatorEmergency signal: 'Sensor de cabina desincronizado'].
+	
+	(cabinFloorNumber = (aFloor-1) or: cabinFloorNumber = (aFloor+1)) ifFalse: [ElevatorEmergency signal: 'Sensor de cabina desincronizado'].
+
 	state := 'working'.
-	cabinState := 'stopped'.
-	cabinDoorState := 'opening'.
+	cabin stop.
+	cabinDoor open.
 	cabinFloorNumber := aFloor.
 	
 	floorsToGo := floorsToGo allButFirst.! !
 
-!ElevatorController methodsFor: 'state changer' stamp: 'LT 10/2/2017 19:45:06'!
-goUpPushedFromFloor: aFloor
-	state  := 'working'.
-	cabinState := 'stopped'.
-	cabinDoorState := 'closing'.
-	
-	floorsToGo add: aFloor.! !
-
-!ElevatorController methodsFor: 'state changer' stamp: 'LT 10/2/2017 19:38:59'!
-openCabinDoor
-	(self isCabinMoving) ifFalse:[
-		(self isCabinDoorClosed or: self isCabinDoorClosing) ifTrue: [cabinDoorState := 'opening'].
-	].! !
+!ElevatorController methodsFor: 'signals' stamp: 'fz 10/11/2017 00:05:45'!
+waitForPeopleTimedOut
+	cabin stop.
+	cabinDoor close.! !
