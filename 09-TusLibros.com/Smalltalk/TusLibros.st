@@ -114,60 +114,59 @@ TestCase subclass: #CashierTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 15:40:26'!
+!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 17:39:08'!
 test01CanNotCheckoutAnEmptyCart
-	| cart salesBook creditCard  |
+	| salesBook  |
 
-	cart := objectFactory createCart.
-	creditCard := objectFactory notExpiredCreditCard.
 	salesBook := OrderedCollection new.
 		
 	self should: [
 		Cashier 
-			toCheckout: cart
-			charging: creditCard
+			toCheckout: objectFactory createCart 
+			ownedBy: objectFactory customer
+			charging: objectFactory notExpiredCreditCard 
 			throught: self
 			on: objectFactory today
-			registeringOn: salesBook.
+			registeringOn:  salesBook 
 		] 
 		raise: Error - MessageNotUnderstood 
 		withExceptionDo: [:anError | self assert: anError messageText = Cashier emptyCartErrorMessage].! !
 
-!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 17:04:49'!
+!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 17:40:06'!
 test02TotalCheckoutIsCorrect
-	| cart cashier salesBook creditCard  |
-
-	cart := objectFactory createCart.
-	cart add: 2 of: objectFactory itemFromTheStore. 
-	creditCard := objectFactory notExpiredCreditCard.
-	salesBook := OrderedCollection new.
+	| cart cashier |
 	
-	cashier:= Cashier 
-		toCheckout: cart
-		charging: creditCard
+	cart := objectFactory createCart.
+	cart add: 2 of: objectFactory itemFromTheStore .
+	
+	cashier :=  Cashier
+		toCheckout: cart 
+		ownedBy: objectFactory customer
+		charging: objectFactory notExpiredCreditCard 
 		throught: self
-		on: objectFactory today
-		registeringOn: salesBook.
+		on: objectFactory today 
+		registeringOn: OrderedCollection new.
 	
 	self assert: (cashier checkout total) equals: 10.
 	! !
 
-!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 15:42:16'!
+!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 17:40:40'!
 test03CanNotCheckoutWithExpiredCreditCard
-	| cart salesBook creditCard  |
+	| cart salesBook |
 
 	cart := objectFactory createCart.
 	cart add: objectFactory itemFromTheStore .
-	creditCard := objectFactory expiredCreditCard .
 	salesBook := OrderedCollection new.
 	
-	self should: [
-		Cashier 
-			toCheckout: cart
-			charging: creditCard
-			throught: self
-			on: objectFactory today
-			registeringOn: salesBook.
+	self
+		should: [ 
+			Cashier 
+				toCheckout: cart 
+				ownedBy: objectFactory customer 
+				charging: objectFactory expiredCreditCard 
+				throught: self
+				on: objectFactory today
+				registeringOn: salesBook
 		] 
 		raise:  Error - MessageNotUnderstood 
 		withExceptionDo: [:anError | 
@@ -175,18 +174,18 @@ test03CanNotCheckoutWithExpiredCreditCard
 
 	! !
 
-!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 17:05:43'!
+!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 17:41:06'!
 test04CheckoutRegistersASale
-	| cart cashier salesBook total creditCard  |
+	| cart cashier salesBook total |
 
 	cart := objectFactory createCart.
 	cart add: objectFactory itemFromTheStore .
-	creditCard := objectFactory notExpiredCreditCard.
 	salesBook := OrderedCollection new.
  
 	cashier:= Cashier 
-		toCheckout: cart
-		charging: creditCard
+		toCheckout: cart 
+		ownedBy: objectFactory customer 
+		charging: objectFactory notExpiredCreditCard
 		throught: self
 		on: objectFactory today
 		registeringOn: salesBook.
@@ -197,7 +196,7 @@ test04CheckoutRegistersASale
 	self assert: salesBook first total = total.
 	! !
 
-!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 17:05:55'!
+!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 17:41:25'!
 test05CashierChargesCreditCardUsingMerchantProcessor
 	| cart cashier salesBook total creditCard debitedAmout debitedCreditCard  |
 
@@ -208,6 +207,7 @@ test05CashierChargesCreditCardUsingMerchantProcessor
  
 	cashier:= Cashier 
 		toCheckout: cart
+		ownedBy: objectFactory customer 
 		charging: creditCard
 		throught: self
 		on: objectFactory today
@@ -222,7 +222,7 @@ test05CashierChargesCreditCardUsingMerchantProcessor
 	self assert: debitedAmout = total.
 	! !
 
-!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 15:44:44'!
+!CashierTest methodsFor: 'tests' stamp: 'fz 11/6/2017 17:41:40'!
 test06CashierDoesNotSaleWhenTheCreditCardHasNoCredit
 
 	| cart cashier salesBook creditCard |
@@ -235,6 +235,7 @@ test06CashierDoesNotSaleWhenTheCreditCardHasNoCredit
 	
 	cashier:= Cashier 
 		toCheckout: cart
+		ownedBy: objectFactory customer
 		charging: creditCard
 		throught: self
 		on: objectFactory today
@@ -772,12 +773,6 @@ Object subclass: #CartSession
 cart
 	^cart! !
 
-!CartSession methodsFor: 'as yet unclassified' stamp: 'fz 11/6/2017 16:55:07'!
-initializeOwnedBy: aClient with: aCart 
-
-	owner := aClient.
-	cart := aCart ! !
-
 !CartSession methodsFor: 'as yet unclassified' stamp: 'fz 11/6/2017 17:17:05'!
 initializeOwnedBy: aClient with: aCart at: aTime expiringAfter: aDuration
 
@@ -806,11 +801,6 @@ usedAt: aTime
 CartSession class
 	instanceVariableNames: ''!
 
-!CartSession class methodsFor: 'as yet unclassified' stamp: 'fz 11/6/2017 16:54:55'!
-ownedBy: aClient with: aCart 
-
-	^self new initializeOwnedBy: aClient with: aCart ! !
-
 !CartSession class methodsFor: 'as yet unclassified' stamp: 'fz 11/6/2017 17:16:54'!
 ownedBy: aClient with: aCart at: aTime expiringAfter: aDuration
 
@@ -824,14 +814,6 @@ Object subclass: #Cashier
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'initialization' stamp: 'fz 11/6/2017 15:36:24'!
-toCheckout: aCart charging: aCreditCard throught: aMerchantProcessor registeringOn: aSalesBook 
-	cart := aCart.
-	creditCard := aCreditCard.
-	salesBook := aSalesBook.
-	merchantProcessor := aMerchantProcessor ! !
-
-
 !Cashier methodsFor: 'checkout' stamp: 'fz 11/6/2017 16:58:12'!
 checkout
 
@@ -840,15 +822,6 @@ checkout
 	self registerSale.
 
 	^ ticket ! !
-
-
-!Cashier methodsFor: 'private' stamp: 'fz 11/6/2017 15:49:54'!
-debitTotal: total
-	merchantProcessor debit: total from: creditCard.! !
-
-!Cashier methodsFor: 'private' stamp: 'fz 11/6/2017 15:50:38'!
-registerOnSalesBook: total
-	salesBook add: total.! !
 
 
 !Cashier methodsFor: 'as yet unclassified' stamp: 'fz 11/6/2017 16:59:04'!
@@ -901,14 +874,6 @@ totalOf: anItem quantity: aQuantity
 !classDefinition: 'Cashier class' category: #TusLibros!
 Cashier class
 	instanceVariableNames: ''!
-
-!Cashier class methodsFor: 'initialization' stamp: 'fz 11/6/2017 15:35:49'!
-toCheckout: aCart charging: aCreditCard throught: aMerchantProcessor on: aDate registeringOn: aSalesBook 
-	self assertIsNotEmpty: aCart.
-	self assertIsNotExpired: aCreditCard on: aDate.
-	
-	^self new toCheckout: aCart charging: aCreditCard throught: aMerchantProcessor registeringOn: aSalesBook ! !
-
 
 !Cashier class methodsFor: 'messages' stamp: 'fz 11/6/2017 15:45:13'!
 creditCardHasNoCreditErrorMessage
@@ -1289,7 +1254,6 @@ withCartSessionIdentifiedAs: aCartId do: aBlock
 TusLibrosInteface class
 	instanceVariableNames: ''!
 
-
 !TusLibrosInteface class methodsFor: 'as yet unclassified' stamp: 'fz 11/6/2017 17:12:49'!
 authenticatingWith: aValidUsersAndPasswords acceptingItemsOf: aCatalog registeringOn: aSalesBook debitingThrought: aMerchantProcessor measuringTimeWith: aClock
 
@@ -1321,6 +1285,10 @@ createCart
 	cart := Cart newWithCatalog: catalog.
 	
 	^cart! !
+
+!TusLibrosTestObjectFactory methodsFor: 'as yet unclassified' stamp: 'fz 11/6/2017 17:39:33'!
+customer
+	^'Franchela'! !
 
 !TusLibrosTestObjectFactory methodsFor: 'as yet unclassified' stamp: 'fz 11/6/2017 16:33:51'!
 defaultCatalog
